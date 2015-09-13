@@ -28,13 +28,13 @@ import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 
-public class MavenDependencyInstaller
+public class MadeIn
 {
 	private List<URL> urls;
 	
 	private MadeinClassLoader loader;
 	
-	public MavenDependencyInstaller() {
+	public MadeIn() {
 		urls = new ArrayList<URL>();
 	}
 

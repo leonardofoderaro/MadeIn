@@ -7,7 +7,7 @@ public class MadeInApp {
 	public static void main( String[] args ) throws Exception {
 
 		// initalize the loader
-		MavenDependencyInstaller madein = new MavenDependencyInstaller();
+		MadeIn madein = new MadeIn();
 
 		// install a dependency
 		ArtifactResult result = madein.install("org.apache.solr:solr-solrj:5.3.0");
