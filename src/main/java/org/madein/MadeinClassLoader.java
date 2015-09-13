@@ -17,11 +17,11 @@ import java.util.zip.ZipException;
 
 // based on http://stackoverflow.com/questions/9314541/analyze-jar-file-programmatically
 
-public class JarScanner extends URLClassLoader {
+public class MadeinClassLoader extends URLClassLoader {
 
 	private URL[] urls;
 
-	public JarScanner(URL[] urls) {
+	public MadeinClassLoader(URL[] urls) {
 		super(urls);
 		
 		this.urls = urls;
@@ -84,7 +84,7 @@ public class JarScanner extends URLClassLoader {
 
 					count++;
 				} catch (ClassCastException e) {
-
+					e.printStackTrace();
 				}
 			}
 		}
