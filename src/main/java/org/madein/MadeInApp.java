@@ -2,16 +2,25 @@ package org.madein;
 
 import org.eclipse.aether.resolution.ArtifactResult;
 
-public class App {
+public class MadeInApp {
 
-	public static void main( String[] args )
-			throws Exception {
+	public static void main( String[] args ) throws Exception {
 
-		MavenDependencyInstaller installer = new MavenDependencyInstaller();
+		// initalize the loader
+		MavenDependencyInstaller madein = new MavenDependencyInstaller();
 
-		ArtifactResult result = installer.install("org.apache.solr:solr-solrj:5.3.0");
+		// install a dependency
+		ArtifactResult result = madein.install("org.apache.solr:solr-solrj:5.3.0");
 
+		// we can show where it has been downloaded
 		System.out.println("Artifact installed at " + result.getArtifact().getFile());
+		
+		// classes are automatically loaded & available
+		Class documentClass = Class.forName("org.apache.solr.common.SolrDocument", false, madein.getClassLoader());
+		
+		Object doc = documentClass.newInstance();
+		
+		System.out.println(doc.toString());
 		
 	}
 }
