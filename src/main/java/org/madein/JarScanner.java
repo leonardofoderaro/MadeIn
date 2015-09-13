@@ -89,8 +89,6 @@ public class JarScanner extends URLClassLoader {
 			}
 		}
 
-		System.out.println("Total: " + count);
-
 		return classes;
 	}
 
