@@ -1,10 +1,12 @@
 package org.madein;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipException;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.RepositorySystem;
@@ -62,7 +64,6 @@ public class MavenDependencyInstaller
 	        {
 	        	if (resolve) {
 	        		ArtifactResult r = this.install( dependency.toString().replaceAll(" .*", ""), false );
-	        		System.out.println(r.getArtifact().getFile());
 	        		try {
 						urls.add(new URL("file://"+r.getArtifact().getFile().toString()));
 					} catch (MalformedURLException e) {
@@ -83,8 +84,12 @@ public class MavenDependencyInstaller
 			e.printStackTrace();
 		}
 
-
-
+		if (resolve) {
+			
+			
+	
+		
+		}
 
 		return artifactResult;
 	}
@@ -118,17 +123,35 @@ public class MavenDependencyInstaller
 
 		MavenDependencyInstaller installer = new MavenDependencyInstaller();
 
-		ArtifactResult result = installer.install("redis.clients:jedis:2.7.3", true);
+		ArtifactResult result = installer.install("redis.clients:jedis:2.7.3");
 
-		System.out.println("Artifact installed in " + result.getArtifact().getFile());
+	
 		
-		URL[] urls = new URL[1];
-		urls[0] = new URL("file://"+result.getArtifact().getFile());
-		
-		JarScanner scanner = new JarScanner(installer.getUrls());
-		scanner.loadAndScanJar(result.getArtifact().getFile());
-		
+	}
 
+	public ArtifactResult install(String mavenCoordinates) throws ArtifactResolutionException {
+	
+		ArtifactResult result  = this.install(mavenCoordinates, true);
+		
+		try {
+			JarScanner scanner = new JarScanner(this.getUrls());
+			
+			scanner.loadAndScanJar(result.getArtifact().getFile());
+			
+			scanner.close();
+			
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ZipException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 
 	private URL[] getUrls() {
