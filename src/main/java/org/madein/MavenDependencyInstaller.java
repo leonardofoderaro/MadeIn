@@ -30,8 +30,9 @@ import org.eclipse.aether.transport.http.HttpTransporterFactory;
 
 public class MavenDependencyInstaller
 {
-	
 	private List<URL> urls;
+	
+	private MadeinClassLoader loader;
 	
 	public MavenDependencyInstaller() {
 		urls = new ArrayList<URL>();
@@ -118,27 +119,18 @@ public class MavenDependencyInstaller
 		return locator.getService( RepositorySystem.class );
 	}
 
-	public static void main( String[] args )
-			throws Exception {
 
-		MavenDependencyInstaller installer = new MavenDependencyInstaller();
-
-		ArtifactResult result = installer.install("redis.clients:jedis:2.7.3");
-
-	
-		
-	}
 
 	public ArtifactResult install(String mavenCoordinates) throws ArtifactResolutionException {
 	
 		ArtifactResult result  = this.install(mavenCoordinates, true);
 		
 		try {
-			JarScanner scanner = new JarScanner(this.getUrls());
+		    loader = new MadeinClassLoader(this.getUrls());
 			
-			scanner.loadAndScanJar(result.getArtifact().getFile());
+			loader.loadAndScanJar(result.getArtifact().getFile());
 			
-			scanner.close();
+			loader.close();
 			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -157,6 +149,10 @@ public class MavenDependencyInstaller
 	private URL[] getUrls() {
 		// TODO Auto-generated method stub
 		return urls.toArray(new URL[urls.size()]);
+	}
+	
+	public ClassLoader getClassLoader() {
+		return loader;
 	}
 
 }
