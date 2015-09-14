@@ -1,12 +1,10 @@
 package org.madein;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.RepositorySystem;
@@ -32,10 +30,15 @@ public class MadeIn
 {
 	private List<URL> urls;
 	
-	private MadeinClassLoader loader;
+	private Object parent;
 	
 	public MadeIn() {
 		urls = new ArrayList<URL>();
+	}
+	
+	public MadeIn(Object parent) {
+		urls = new ArrayList<URL>();
+		this.parent = parent;
 	}
 
 	public ArtifactResult install(String mavenCoordinates, boolean resolve) throws ArtifactResolutionException {
@@ -125,8 +128,8 @@ public class MadeIn
 	
 		ArtifactResult result  = this.install(mavenCoordinates, true);
 		
-		try {
-		    loader = new MadeinClassLoader(this.getUrls());
+	/*	try {
+		    loader = new MadeinClassLoader(this.getUrls(), parent);
 			
 			loader.loadAndScanJar(result.getArtifact().getFile());
 			
@@ -141,18 +144,26 @@ public class MadeIn
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
+		try {
+			urls.add(result.getArtifact().getFile().toURI().toURL());
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return result;
 	}
 
-	private URL[] getUrls() {
+	public URL[] getUrls() {
 		// TODO Auto-generated method stub
 		return urls.toArray(new URL[urls.size()]);
 	}
 	
+	
 	public ClassLoader getClassLoader() {
-		return loader;
+		return URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]));
 	}
+	
 
 }
