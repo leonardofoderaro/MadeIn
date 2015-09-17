@@ -2,7 +2,7 @@
 ==
 
 A small library to simplify the programmatic installation of Maven dependency to a local repository,
-based on Eclipse Aether.
+based on Eclipse Aether: http://git.eclipse.org/c/aether/
 
 Build
 ==
