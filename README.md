@@ -19,8 +19,7 @@ Example
 
         // show where it has been downloaded
         System.out.println("Artifact installed at " + result.getArtifact().getFile());
-		
-        // classes are automatically loaded & available
+
         Class documentClass = Class.forName("org.apache.solr.common.SolrDocument", false, madein.getClassLoader());
 
         Object doc = documentClass.newInstance();
