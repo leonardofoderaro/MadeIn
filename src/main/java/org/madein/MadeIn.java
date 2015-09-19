@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
+import org.eclipse.aether.AbstractRepositoryListener;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
@@ -23,19 +25,23 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
+import org.eclipse.aether.transfer.AbstractTransferListener;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 
 public class MadeIn
 {
 	private List<URL> urls;
-	
+
 	private Object parent;
-	
+
+	private AbstractTransferListener transferListener;
+	private AbstractRepositoryListener repositoryListener;
+
 	public MadeIn() {
 		urls = new ArrayList<URL>();
 	}
-	
+
 	public MadeIn(Object parent) {
 		urls = new ArrayList<URL>();
 		this.parent = parent;
@@ -47,6 +53,20 @@ public class MadeIn
 
 		RepositorySystemSession session = Booter.newRepositorySystemSession( system );
 
+		if (this.transferListener != null) {
+			System.out.println("Dump transferListener");
+			System.out.println(session.getTransferListener());
+			((DefaultRepositorySystemSession)session).setTransferListener(transferListener);
+			System.out.println(session.getTransferListener());
+		} 
+
+		if (this.repositoryListener != null) {
+			((DefaultRepositorySystemSession)session).setRepositoryListener(repositoryListener);
+			System.out.println("set new repo listener");
+		}  else {
+			System.out.println("new repo listener NULL!!!!");
+		}
+
 		Artifact artifact = new DefaultArtifact( mavenCoordinates );
 
 		ArtifactRequest artifactRequest = new ArtifactRequest();
@@ -54,45 +74,45 @@ public class MadeIn
 		artifactRequest.setRepositories( Booter.newRepositories( system, session ) );
 
 		ArtifactResult artifactResult = system.resolveArtifact( session, artifactRequest );
-		
-		
-        ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
-        descriptorRequest.setArtifact( artifact );
-        descriptorRequest.setRepositories( Booter.newRepositories( system, session ) );
 
-        ArtifactDescriptorResult descriptorResult;
+
+		ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
+		descriptorRequest.setArtifact( artifact );
+		descriptorRequest.setRepositories( Booter.newRepositories( system, session ) );
+
+		ArtifactDescriptorResult descriptorResult;
 		try {
 			descriptorResult = system.readArtifactDescriptor( session, descriptorRequest );
-			
-	        for (Dependency dependency : descriptorResult.getDependencies() )
-	        {
-	        	if (resolve) {
-	        		ArtifactResult r = this.install( dependency.toString().replaceAll(" .*", ""), false );
-	        		try {
+
+			for (Dependency dependency : descriptorResult.getDependencies() )
+			{
+				if (resolve) {
+					ArtifactResult r = this.install( dependency.toString().replaceAll(" .*", ""), false );
+					try {
 						urls.add(new URL("file://"+r.getArtifact().getFile().toString()));
 					} catch (MalformedURLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-	        		
-	        		
-	        		//System.out.println(dependency, false);
-	        	}
-	        	
-	            //
-	        }
 
-	        
+
+					//System.out.println(dependency, false);
+				}
+
+				//
+			}
+
+
 		} catch (ArtifactDescriptorException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		if (resolve) {
-			
-			
-	
-		
+
+
+
+
 		}
 
 		return artifactResult;
@@ -125,16 +145,17 @@ public class MadeIn
 
 
 	public ArtifactResult install(String mavenCoordinates) throws ArtifactResolutionException {
-	
+
+
 		ArtifactResult result  = this.install(mavenCoordinates, true);
-		
-	/*	try {
+
+		/*	try {
 		    loader = new MadeinClassLoader(this.getUrls(), parent);
-			
+
 			loader.loadAndScanJar(result.getArtifact().getFile());
-			
+
 			loader.close();
-			
+
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -145,7 +166,7 @@ public class MadeIn
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-		
+
 		try {
 			urls.add(result.getArtifact().getFile().toURI().toURL());
 		} catch (MalformedURLException e) {
@@ -159,11 +180,22 @@ public class MadeIn
 		// TODO Auto-generated method stub
 		return urls.toArray(new URL[urls.size()]);
 	}
-	
-	
+
+
 	public ClassLoader getClassLoader() {
 		return URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]));
 	}
-	
+
+	public void setTransferListener(AbstractTransferListener transferListener) {
+		// TODO Auto-generated method stub
+		this.transferListener = transferListener;	
+	}
+
+	public void setRepositoryListener(AbstractRepositoryListener repositoryListener) {
+		// TODO Auto-generated method stub
+		this.repositoryListener = repositoryListener;	
+		System.out.println("set new repo listener OK");
+	}
+
 
 }

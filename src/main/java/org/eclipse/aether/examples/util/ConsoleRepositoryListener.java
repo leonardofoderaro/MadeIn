@@ -36,6 +36,7 @@ public class ConsoleRepositoryListener
 
     public void artifactDeployed( RepositoryEvent event )
     {
+    
         out.println( "Deployed " + event.getArtifact() + " to " + event.getRepository() );
     }
 
